@@ -1,0 +1,143 @@
+<h5 style="text-align: center;">Диски массивов</h5>
+<p-toast></p-toast>
+<p-toolbar styleClass="p-mb-2">
+  <ng-template pTemplate="left">
+    <button pButton pRipple label="Новый диск" icon="pi pi-plus" class="p-button-success" (click)="addStorage_Drive()" ></button>
+  </ng-template>
+</p-toolbar>
+<p-table
+  styleClass="p-datatable-gridlines"
+  [resizableColumns]="true"
+  [columns]="colsStorage_Drive"
+  [value]="Storage_Drives"
+  sortMode="multiple"
+  [scrollable]="true"
+  selectionMode="single"
+  [metaKeySelection]="true"
+  [paginator]="true"
+  [rows]="10" [pageLinks]="3" [rowsPerPageOptions]="[5,10,20,1000]"
+  currentPageReportTemplate="Демонстрация от {first} до {last} из {totalRecords} записи(ей)" [showCurrentPageReport]="true"
+  [(selection)]="selectItem"
+>
+  <ng-template pTemplate="header" let-columns  style="margin-right: 0;">
+    <tr>
+      <th pResizableColumn ></th>
+      <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+        {{col.header}}
+        <p-sortIcon [field]="col.field"></p-sortIcon>
+      </th>
+      <th pResizableColumn ></th>
+    </tr>
+    <tr>
+      <th pResizableColumn >
+        <p-tableHeaderCheckbox> </p-tableHeaderCheckbox>
+      </th>
+      <th *ngFor="let col of columns" pResizableColumn>
+        <p-columnFilter type="text" [field]="col.field" [matchMode]="'contains'" ></p-columnFilter>
+      </th>
+      <th pResizableColumn ></th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-rowData let-columns="columns"  let-colum>
+    <tr>
+      <td pResizableColumn >
+      <p-tableCheckbox [value]="colum"></p-tableCheckbox>
+      </td>
+      <td>{{rowData?.model_name}}</td>
+      <td>{{rowData?.storages?.dns_name}}</td>
+      <td>{{rowData?.total_quantity}}</td>
+      <td>{{rowData?.storage_size}}</td>
+      <td>{{rowData?.linterface}}</td>
+      <td>{{rowData?.factor}}</td>
+      <td>{{rowData?.technology}}</td>
+      <td>{{rowData?.spindle_speed}}</td>
+      <td>{{rowData?.my_notes}}</td>
+      <td>{{rowData?.id}}</td>
+      <td pResizableColumn >
+        <button pButton pRipple icon="pi pi-trash"
+                class="p-button-rounded p-button-warning"
+                type="button"
+                (click)="deleteStorage_Drive(rowData.id)">
+        </button>
+        <button pButton pRipple icon="pi pi-pencil"
+                class="p-button-rounded p-button-help"
+                type="button"
+                (click)="editStorage_Drive(rowData)">
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="Storage_DriveDialog" [style]="{width: '450px'}" header="Новый диск массива" [modal]="true" styleClass="p-fluid">
+
+  <ng-template pTemplate="content">
+
+  <div class="p-field">
+    <label>Наименование модели</label>
+    <input type="text" pInputText  [(ngModel)]="storage_drive.model_name" placeholder="текст" />
+  </div>
+  <div class="dropdown">
+    <label>ID массива</label>
+    <ng-select  [items]="storages"
+                bindLabel="dns_name"
+                placeholder="выбор по 'DNS имя'"
+                bindValue="id"
+                [(ngModel)]="storage_drive.storage_id" required></ng-select>
+    <small class="p-invalid" *ngIf="!submitted && !storage_drive.storage_id">Необходимо заполнить ID массива</small>
+  </div>
+  <div class="form-group" style="margin-top: 10px; margin-right: 10px;">
+    <div class="row">
+      <label for="storage_drive.total_quantity" class="col control-label">Общее количество</label>
+      <input type="text" [(ngModel)]="storage_drive.total_quantity" placeholder="число" 
+      class="col control-label rounded border border-1" (keypress)="onKeyPress($event)"/>
+    </div>
+  </div>
+  <div class="form-group" style="margin-top: 5px; margin-right: 10px;">
+    <div class="row">
+      <label for="storage_drive.storage_size" class="col control-label">Размер</label>
+      <input type="text" [(ngModel)]="storage_drive.storage_size" placeholder="число" 
+      class="col control-label rounded border border-1" (keypress)="onKeyPress($event)"/>
+    </div>
+  </div>
+  <div class="form-group" style="margin-top: 5px; margin-right: 10px;">
+    <div class="row">
+      <label for="storage_drive.spindle_speed" class="col control-label">Скорость вращения шпинделя (об/мин)</label>
+      <input type="text" [(ngModel)]="storage_drive.spindle_speed" placeholder="число" 
+      class="col control-label rounded border border-1" (keypress)="onKeyPress($event)"/>
+    </div>
+  </div>
+  <div class="p-field">
+    <label>Интерфейс</label>
+    <input type="text" pInputText  [(ngModel)]="storage_drive.linterface" placeholder="текст" />
+  </div>
+  <div class="p-field">
+    <label>Фактор</label>
+    <input type="text" pInputText  [(ngModel)]="storage_drive.factor" placeholder="текст" />
+  </div>
+  <div class="p-field">
+    <label>Технология</label>
+    <input type="text" pInputText  [(ngModel)]="storage_drive.technology" placeholder="текст"  />
+  </div>
+  <div class="p-field">
+    <label>Заметки</label>
+    <input type="text" pInputText  [(ngModel)]="storage_drive.my_notes" placeholder="текст" />
+  </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+  <div class="row">
+    <div class="col-6">
+       <button  pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"  
+                [disabled]="!submitted && !storage_drive.storage_id" 
+                (click)="saveStorage_Drive()"></button>
+    </div>
+    <div class="col-6"> 
+      <button pButton pRipple label="Cansel" icon="pi pi-cancel" class="p-button-text" (click)="hideDialog()"></button>
+    </div>
+  </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
